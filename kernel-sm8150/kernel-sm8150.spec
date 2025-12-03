@@ -1,12 +1,13 @@
 %undefine        _debugsource_packages
-Version:         6.17.0-1
+%global subver 1
+Version:         6.17.0
 Release:         2.nabu%{?dist}
 ExclusiveArch:   aarch64
 Name:            kernel-sm8150
 Summary:         Mainline Linux kernel for xiaomi-nabu
 License:         GPLv2
 URL:             https://github.com/jhuang6451/sm8150-mainline
-Source0:         %{url}/archive/v%{version}-sm8150.tar.gz
+Source0:         %{url}/archive/v%{version}-%{subver}-sm8150.tar.gz
 Source1:         extra-sm8150.config
 Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
 
@@ -23,7 +24,7 @@ Provides:        kernel-modules-core  = %{version}-%{release}
 Mainline kernel for xiaomi-nabu (Qualcomm Snapdragon 855/860), packaged for standard Fedora systems with UEFI boot support
 
 %prep
-%autosetup -p1 -n sm8150-mainline-v%{version}-sm8150
+%autosetup -p1 -n sm8150-mainline-v%{version}-%{subver}-sm8150
 
 # 准备默认配置
 make defconfig sm8150.config
