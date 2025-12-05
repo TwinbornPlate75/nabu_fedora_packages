@@ -1,8 +1,8 @@
 %undefine        _debugsource_packages
 %global extraversion -sm8150-1
 %global devicename nabu
-Version:         6.17.0%{extraversion}
-Release:         2%{?dist}
+Version:         6.17.0
+Release:         1.sm8150%{?dist}
 ExclusiveArch:   aarch64
 Name:            kernel-sm8150
 Summary:         Mainline Linux kernel for sm8150 devices
@@ -125,15 +125,7 @@ rm -f "${INITRD_PATH}"
 
 echo "--- UKI generation complete for ${uname_r} ---"
 
-
-
 %postun
-# 这个脚本在卸载包时运行
-if [ "$1" -eq 0 ] ; then
-    # 使用 kernel-install 移除此内核的引导项，保持系统清洁
-    echo "Running kernel-install to remove kernel %{uname_r}..."
-    kernel-install remove %{uname_r}
-fi
 
 %changelog
 * Wed Dec 2 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0-2.nabu
