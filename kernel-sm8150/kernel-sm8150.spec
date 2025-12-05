@@ -45,12 +45,11 @@ make EXTRAVERSION="-%{extraversion}" LOCALVERSION= -j%{?_smp_build_ncpus} Image 
 
 # 1. 安装内核模块
 # INSTALL_MOD_PATH 指向 %{buildroot}/usr，这会将模块安装到 %{buildroot}/usr/lib/modules/%{uname_r}/
-make EXTRAVERSION="-%{release}.%{_target_cpu}" LOCALVERSION= \
+make EXTRAVERSION="-%{extraversion}" LOCALVERSION= \
     INSTALL_MOD_PATH=%{buildroot}/usr \
     modules_install
 
 # 2. 安装内核镜像、System.map 和配置文件到 /boot 目录
-# 这是标准 Fedora 的做法，文件会带有版本号后缀
 install -Dm644 arch/arm64/boot/Image %{buildroot}/boot/vmlinuz-%{uname_r}
 install -Dm644 System.map %{buildroot}/boot/System.map-%{uname_r}
 install -Dm644 .config    %{buildroot}/boot/config-%{uname_r}
