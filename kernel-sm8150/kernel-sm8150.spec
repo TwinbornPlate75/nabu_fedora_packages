@@ -1,13 +1,13 @@
 %undefine        _debugsource_packages
-%global subver 1
-Version:         6.17.0
+%global extraversion sm8150
+Version:         6.17.0.1
 Release:         2.nabu%{?dist}
 ExclusiveArch:   aarch64
 Name:            kernel-sm8150
 Summary:         Mainline Linux kernel for xiaomi-nabu
 License:         GPLv2
-URL:             https://github.com/jhuang6451/sm8150-mainline
-Source0:         %{url}/archive/v%{version}-%{subver}-sm8150.tar.gz
+URL:             https://github.com/jhuang6451/Linux
+Source0:         %{url}/archive/v%{version}-%{extraversion}.tar.gz
 Source1:         extra-sm8150.config
 Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
 
@@ -18,13 +18,13 @@ Provides:        kernel-core          = %{version}-%{release}
 Provides:        kernel-modules       = %{version}-%{release}
 Provides:        kernel-modules-core  = %{version}-%{release}
 
-%global uname_r %{version}-%{release}.%{_target_cpu}
+%global uname_r %{version}-%{extraversion}
 
 %description
 Mainline kernel for xiaomi-nabu (Qualcomm Snapdragon 855/860), packaged for standard Fedora systems with UEFI boot support
 
 %prep
-%autosetup -p1 -n sm8150-mainline-%{version}-%{subver}-sm8150
+%autosetup -p1 -n Linux-%{version}-%{extraversion}
 
 # 准备默认配置
 make defconfig sm8150.config
@@ -39,7 +39,7 @@ rm -f localversion*
 
 make olddefconfig
 # 使用 EXTRAVERSION 和空的 LOCALVERSION 来精确构建内核版本号
-make EXTRAVERSION="-%{release}.%{_target_cpu}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
+make EXTRAVERSION="-%{extraversion}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
 
 %install
 
