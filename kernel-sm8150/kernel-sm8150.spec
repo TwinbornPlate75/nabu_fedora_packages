@@ -2,7 +2,7 @@
 %global extraversion -sm8150-1
 %global devicename nabu
 Version:         6.17.0
-Release:         sm8150-1%{?dist}
+Release:         sm8150.1%{?dist}
 ExclusiveArch:   aarch64
 Name:            kernel-sm8150
 Summary:         Mainline Linux kernel for sm8150 devices
