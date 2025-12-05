@@ -1,10 +1,11 @@
 %undefine        _debugsource_packages
 %global extraversion sm8150
+%global devicename nabu
 Version:         6.17.0.1
-Release:         2.nabu%{?dist}
+Release:         2.%{devicename}%{?dist}
 ExclusiveArch:   aarch64
 Name:            kernel-sm8150
-Summary:         Mainline Linux kernel for xiaomi-nabu
+Summary:         Mainline Linux kernel for sm8150 devices
 License:         GPLv2
 URL:             https://github.com/jhuang6451/Linux
 Source0:         %{url}/archive/v%{version}-%{extraversion}.tar.gz
@@ -21,7 +22,7 @@ Provides:        kernel-modules-core  = %{version}-%{release}
 %global uname_r %{version}-%{extraversion}
 
 %description
-Mainline kernel for xiaomi-nabu (Qualcomm Snapdragon 855/860), packaged for standard Fedora systems with UEFI boot support
+Mainline kernel for sm8150 (Qualcomm Snapdragon 855/860), packaged for standard Fedora systems with UEFI boot support
 
 %prep
 %autosetup -p1 -n Linux-%{version}-%{extraversion}
@@ -57,7 +58,7 @@ install -Dm644 .config    %{buildroot}/boot/config-%{uname_r}
 # 3. 安装设备树文件 (DTB)
 # kernel-install 会自动在 /usr/lib/modules/%{uname_r}/dtb/ 路径下寻找 DTB 文件
 install -d %{buildroot}/usr/lib/modules/%{uname_r}/dtb/qcom
-install -Dm644 arch/arm64/boot/dts/qcom/sm8150-xiaomi-nabu.dtb %{buildroot}/usr/lib/modules/%{uname_r}/dtb/qcom/sm8150-xiaomi-nabu.dtb
+install -Dm644 arch/arm64/boot/dts/qcom/sm8150-xiaomi-%{devicename}.dtb %{buildroot}/usr/lib/modules/%{uname_r}/dtb/qcom/sm8150-xiaomi-%{devicename}.dtb
 
 
 %files
@@ -85,7 +86,7 @@ echo "--- Generating UKI for ${uname_r} using dracut + ukify ---"
 UKI_DIR="/boot/efi/EFI/fedora"
 INITRD_PATH="/boot/initramfs-${uname_r}.img"
 KERNEL_PATH="/boot/vmlinuz-${uname_r}"
-DTB_PATH="/usr/lib/modules/${uname_r}/dtb/qcom/sm8150-xiaomi-nabu.dtb"
+DTB_PATH="/usr/lib/modules/${uname_r}/dtb/qcom/sm8150-xiaomi-%{devicename}.dtb"
 
 UKI_OUTPUT_PATH="${UKI_DIR}/fedora-${uname_r}.efi"
 mkdir -p "$UKI_DIR"
@@ -136,7 +137,7 @@ fi
 
 %changelog
 * Wed Dec 2 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0-2.nabu
-- Switch source to https://github.com/jhuang6451/sm8150-mainline.
+- Switch source to https://github.com/jhuang6451/Linux.
 
 * Thu Oct 16 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0-1.nabu
 - Initial release of 6.17.
