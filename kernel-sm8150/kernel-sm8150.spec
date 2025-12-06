@@ -43,7 +43,7 @@ cat %{SOURCE1} >> .config
 rm -f localversion*
 
 make olddefconfig
-make EXTRAVERSION="%{%{KERNEL_EXTRA_VER}}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
+make EXTRAVERSION="%{KERNEL_EXTRA_VER}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
 
 %install
 
