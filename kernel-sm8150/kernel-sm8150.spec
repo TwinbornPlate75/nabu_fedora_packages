@@ -49,7 +49,7 @@ make EXTRAVERSION="%{%{KERNEL_EXTRA_VER}}" LOCALVERSION= -j%{?_smp_build_ncpus} 
 
 # 1. 安装内核模块
 # INSTALL_MOD_PATH 指向 %{buildroot}/usr，这会将模块安装到 %{buildroot}/usr/lib/modules/%{KERNEL_FULL_VER}/
-make EXTRAVERSION="%{%{KERNEL_EXTRA_VER}}" LOCALVERSION= \
+make EXTRAVERSION="%{KERNEL_EXTRA_VER}" LOCALVERSION= \
     INSTALL_MOD_PATH=%{buildroot}/usr \
     modules_install
 
