@@ -16,7 +16,7 @@ License:         GPLv2
 URL:             https://github.com/jhuang6451/Linux
 Source0:         %{url}/archive/v%{KERNEL_FULL_VER}.tar.gz
 Source1:         extra-sm8150.config
-Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
+#Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
 
 BuildRequires:   bc bison dwarves diffutils elfutils-devel findutils gcc gcc-c++ git-core hmaccalc hostname make openssl-devel perl-interpreter rsync tar which flex bzip2 xz zstd python3 python3-devel python3-pyyaml rust rust-src bindgen rustfmt clippy opencsd-devel net-tools dracut
 
