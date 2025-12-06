@@ -1,14 +1,16 @@
 %undefine        _debugsource_packages
-%global extraversion -sm8150-1
+%global packagereleasever 3
+%global kernelpatchver 1
+%global kernelextraver -sm8150-%{kernelpatchver}
 %global devicename nabu
 Version:         6.17.0
-Release:         sm8150.1%{?dist}
+Release:         sm8150.%{kernelpatchver}.%{packagereleasever}%{?dist}
 ExclusiveArch:   aarch64
 Name:            kernel-sm8150
 Summary:         Mainline Linux kernel for sm8150 devices
 License:         GPLv2
 URL:             https://github.com/jhuang6451/Linux
-Source0:         %{url}/archive/v%{version}%{extraversion}.tar.gz
+Source0:         %{url}/archive/v%{version}%{kernelextraver}.tar.gz
 Source1:         extra-sm8150.config
 Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
 
@@ -19,13 +21,13 @@ Provides:        kernel-core          = %{version}-%{release}
 Provides:        kernel-modules       = %{version}-%{release}
 Provides:        kernel-modules-core  = %{version}-%{release}
 
-%global uname_r %{version}%{extraversion}
+%global uname_r %{version}-%{release}
 
 %description
 Mainline kernel for sm8150 (Qualcomm Snapdragon 855/860), packaged for standard Fedora systems with UEFI boot support
 
 %prep
-%autosetup -p1 -n Linux-%{version}%{extraversion}
+%autosetup -p1 -n Linux-%{version}%{kernelextraver}
 
 # 准备默认配置
 make defconfig sm8150.config
@@ -40,13 +42,13 @@ rm -f localversion*
 
 make olddefconfig
 # 使用 EXTRAVERSION 和空的 LOCALVERSION 来精确构建内核版本号
-make EXTRAVERSION="%{extraversion}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
+make EXTRAVERSION="%{kernelextraver}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
 
 %install
 
 # 1. 安装内核模块
 # INSTALL_MOD_PATH 指向 %{buildroot}/usr，这会将模块安装到 %{buildroot}/usr/lib/modules/%{uname_r}/
-make EXTRAVERSION="%{extraversion}" LOCALVERSION= \
+make EXTRAVERSION="%{kernelextraver}" LOCALVERSION= \
     INSTALL_MOD_PATH=%{buildroot}/usr \
     modules_install
 
