@@ -43,7 +43,7 @@ cat %{SOURCE1} >> .config
 rm -f localversion*
 
 make olddefconfig
-make EXTRAVERSION="%{%{KERNEL_EXTRA_VER}}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
+make EXTRAVERSION="%{KERNEL_EXTRA_VER}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
 
 %install
 
@@ -130,6 +130,9 @@ echo "--- UKI generation complete for ${KERNEL_FULL_VER} ---"
 
 %changelog
 * Sun Dec 7 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0.sm8150.1-3.nabu
+- Comment out screen rotation patch.
+
+* Wed Dec 2 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0-2.nabu
 - Switch source to https://github.com/jhuang6451/Linux.
 
 * Thu Oct 16 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0-1.nabu
