@@ -1,13 +1,20 @@
 %undefine        _debugsource_packages
-%global tag      6.17
-Version:         6.17.0
-Release:         2.nabu%{?dist}
+%global KERNEL_VER 6.17.0
+%global KERNEL_CUSTOM_VER 1
+%global DEVICE_NAME nabu
+%global PLATFORM_NAME sm8150
+
+%global KERNEL_EXTRA_VER -%{PLATFORM_NAME}-%{KERNEL_CUSTOM_VER}
+%global KERNEL_FULL_VER %{KERNEL_VER}%{KERNEL_EXTRA_VER}
+
+Version:         %{KERNEL_VER}.%{PLATFORM_NAME}.%{KERNEL_CUSTOM_VER}
+Release:         3.%{DEVICE_NAME}%{?dist}
 ExclusiveArch:   aarch64
-Name:            kernel-sm8150
-Summary:         Mainline Linux kernel for xiaomi-nabu
+Name:            kernel-%{PLATFORM_NAME}
+Summary:         Mainline Linux kernel for %{PLATFORM_NAME} devices
 License:         GPLv2
-URL:             https://gitlab.com/sm8150-mainline/linux
-Source0:         %{url}/-/archive/sm8150/%{tag}/linux-sm8150-%{tag}.tar.gz
+URL:             https://github.com/jhuang6451/Linux
+Source0:         %{url}/archive/v%{KERNEL_FULL_VER}.tar.gz
 Source1:         extra-sm8150.config
 Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
 
@@ -18,16 +25,14 @@ Provides:        kernel-core          = %{version}-%{release}
 Provides:        kernel-modules       = %{version}-%{release}
 Provides:        kernel-modules-core  = %{version}-%{release}
 
-%global uname_r %{version}-%{release}.%{_target_cpu}
-
 %description
-Mainline kernel for xiaomi-nabu (Qualcomm Snapdragon 855/860), packaged for standard Fedora systems with UEFI boot support
+Mainline kernel for %{PLATFORM_NAME}, packaged for standard Fedora systems with UEFI boot support
 
 %prep
-%autosetup -p1 -n linux-sm8150-%{tag}
+%autosetup -p1 -n Linux-%{KERNEL_FULL_VER}
 
 # 准备默认配置
-make defconfig sm8150.config
+make defconfig %{PLATFORM_NAME}.config
 
 %build
 # 移除既有的 CONFIG_LOCALVERSION，通过 make 命令的参数来控制它
@@ -38,34 +43,31 @@ cat %{SOURCE1} >> .config
 rm -f localversion*
 
 make olddefconfig
-# 使用 EXTRAVERSION 和空的 LOCALVERSION 来精确构建内核版本号
-make EXTRAVERSION="-%{release}.%{_target_cpu}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
+make EXTRAVERSION="%{%{KERNEL_EXTRA_VER}}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
 
 %install
 
 # 1. 安装内核模块
-# INSTALL_MOD_PATH 指向 %{buildroot}/usr，这会将模块安装到 %{buildroot}/usr/lib/modules/%{uname_r}/
-make EXTRAVERSION="-%{release}.%{_target_cpu}" LOCALVERSION= \
+# INSTALL_MOD_PATH 指向 %{buildroot}/usr，这会将模块安装到 %{buildroot}/usr/lib/modules/%{KERNEL_FULL_VER}/
+make EXTRAVERSION="%{KERNEL_EXTRA_VER}" LOCALVERSION= \
     INSTALL_MOD_PATH=%{buildroot}/usr \
     modules_install
 
 # 2. 安装内核镜像、System.map 和配置文件到 /boot 目录
-# 这是标准 Fedora 的做法，文件会带有版本号后缀
-install -Dm644 arch/arm64/boot/Image %{buildroot}/boot/vmlinuz-%{uname_r}
-install -Dm644 System.map %{buildroot}/boot/System.map-%{uname_r}
-install -Dm644 .config    %{buildroot}/boot/config-%{uname_r}
+install -Dm644 arch/arm64/boot/Image %{buildroot}/boot/vmlinuz-%{KERNEL_FULL_VER}
+install -Dm644 System.map %{buildroot}/boot/System.map-%{KERNEL_FULL_VER}
+install -Dm644 .config    %{buildroot}/boot/config-%{KERNEL_FULL_VER}
 
 # 3. 安装设备树文件 (DTB)
-# kernel-install 会自动在 /usr/lib/modules/%{uname_r}/dtb/ 路径下寻找 DTB 文件
-install -d %{buildroot}/usr/lib/modules/%{uname_r}/dtb/qcom
-install -Dm644 arch/arm64/boot/dts/qcom/sm8150-xiaomi-nabu.dtb %{buildroot}/usr/lib/modules/%{uname_r}/dtb/qcom/sm8150-xiaomi-nabu.dtb
+install -d %{buildroot}/usr/lib/modules/%{KERNEL_FULL_VER}/dtb/qcom
+install -Dm644 arch/arm64/boot/dts/qcom/sm8150-xiaomi-%{DEVICE_NAME}.dtb %{buildroot}/usr/lib/modules/%{KERNEL_FULL_VER}/dtb/qcom/sm8150-xiaomi-%{DEVICE_NAME}.dtb
 
 
 %files
-/boot/vmlinuz-%{uname_r}
-/boot/System.map-%{uname_r}
-/boot/config-%{uname_r}
-/usr/lib/modules/%{uname_r}
+/boot/vmlinuz-%{KERNEL_FULL_VER}
+/boot/System.map-%{KERNEL_FULL_VER}
+/boot/config-%{KERNEL_FULL_VER}
+/usr/lib/modules/%{KERNEL_FULL_VER}
 
 
 %posttrans
@@ -75,26 +77,25 @@ install -Dm644 arch/arm64/boot/dts/qcom/sm8150-xiaomi-nabu.dtb %{buildroot}/usr/
 # while version-specific paths are passed as arguments for robustness.
 # ==============================================================================
 set -e
-uname_r=%{uname_r}
 
 # --- 为新内核生成模块依赖 ---
-depmod -a "${uname_r}"
+depmod -a "${KERNEL_FULL_VER}"
 
-echo "--- Generating UKI for ${uname_r} using dracut + ukify ---"
+echo "--- Generating UKI for ${KERNEL_FULL_VER} using dracut + ukify ---"
 
 # --- 定义路径 ---
 UKI_DIR="/boot/efi/EFI/fedora"
-INITRD_PATH="/boot/initramfs-${uname_r}.img"
-KERNEL_PATH="/boot/vmlinuz-${uname_r}"
-DTB_PATH="/usr/lib/modules/${uname_r}/dtb/qcom/sm8150-xiaomi-nabu.dtb"
+INITRD_PATH="/boot/initramfs-${KERNEL_FULL_VER}.img"
+KERNEL_PATH="/boot/vmlinuz-${KERNEL_FULL_VER}"
+DTB_PATH="/usr/lib/modules/${KERNEL_FULL_VER}/dtb/qcom/sm8150-xiaomi-%{DEVICE_NAME}.dtb"
 
-UKI_OUTPUT_PATH="${UKI_DIR}/fedora-${uname_r}.efi"
+UKI_OUTPUT_PATH="${UKI_DIR}/fedora-${KERNEL_FULL_VER}.efi"
 mkdir -p "$UKI_DIR"
 
 # --- 步骤 1: 使用 dracut 生成 initramfs ---
 echo "Generating initramfs with dracut..."
 # dracut 会从 /etc/dracut.conf.d/ 读取配置
-dracut --kver "${uname_r}" --force
+dracut --kver "${KERNEL_FULL_VER}" --force
 if [ ! -f "${INITRD_PATH}" ]; then
     echo "CRITICAL: dracut failed to generate initramfs at ${INITRD_PATH}" >&2
     exit 1
@@ -123,19 +124,14 @@ echo "SUCCESS: UKI generated at ${UKI_OUTPUT_PATH}"
 echo "Cleaning up standalone initramfs..."
 rm -f "${INITRD_PATH}"
 
-echo "--- UKI generation complete for ${uname_r} ---"
-
-
+echo "--- UKI generation complete for ${KERNEL_FULL_VER} ---"
 
 %postun
-# 这个脚本在卸载包时运行
-if [ "$1" -eq 0 ] ; then
-    # 使用 kernel-install 移除此内核的引导项，保持系统清洁
-    echo "Running kernel-install to remove kernel %{uname_r}..."
-    kernel-install remove %{uname_r}
-fi
 
 %changelog
+* Sun Dec 7 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0.sm8150.1-3.nabu
+- Switch source to https://github.com/jhuang6451/Linux.
+
 * Thu Oct 16 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0-1.nabu
 - Initial release of 6.17.
 
