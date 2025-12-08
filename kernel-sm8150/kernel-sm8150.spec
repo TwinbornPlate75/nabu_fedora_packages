@@ -78,8 +78,12 @@ install -Dm644 arch/arm64/boot/dts/qcom/sm8150-xiaomi-%{DEVICE_NAME}.dtb %{build
 # ==============================================================================
 set -e
 
+KERNEL_FULL_VER="%{KERNEL_FULL_VER}"
+DEVICE_NAME="%{DEVICE_NAME}"
+
 # --- 为新内核生成模块依赖 ---
 depmod -a "${KERNEL_FULL_VER}"
+
 
 echo "--- Generating UKI for ${KERNEL_FULL_VER} using dracut + ukify ---"
 
@@ -129,6 +133,9 @@ echo "--- UKI generation complete for ${KERNEL_FULL_VER} ---"
 %postun
 
 %changelog
+* Sun Dec 7 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0.sm8150.1-3.nabu
+- Comment out screen rotation patch.
+
 * Wed Dec 2 2025 jhuang6451 <xplayerhtz123@outlook.com> - 6.17.0-2.nabu
 - Switch source to https://github.com/jhuang6451/Linux.
 
