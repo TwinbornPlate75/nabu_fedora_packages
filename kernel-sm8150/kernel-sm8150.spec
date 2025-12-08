@@ -82,7 +82,7 @@ KERNEL_FULL_VER="%{KERNEL_FULL_VER}"
 DEVICE_NAME="%{DEVICE_NAME}"
 
 # --- 为新内核生成模块依赖 ---
-depmod -a "${KERNEL_FULL_VER}"
+depmod -a
 
 
 echo "--- Generating UKI for ${KERNEL_FULL_VER} using dracut + ukify ---"
