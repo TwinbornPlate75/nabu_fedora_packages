@@ -78,8 +78,12 @@ install -Dm644 arch/arm64/boot/dts/qcom/sm8150-xiaomi-%{DEVICE_NAME}.dtb %{build
 # ==============================================================================
 set -e
 
+KERNEL_FULL_VER="%{KERNEL_FULL_VER}"
+DEVICE_NAME="%{DEVICE_NAME}"
+
 # --- 为新内核生成模块依赖 ---
-depmod -a
+depmod -a "${KERNEL_FULL_VER}"
+
 
 echo "--- Generating UKI for ${KERNEL_FULL_VER} using dracut + ukify ---"
 
