@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 
 Name:           nabu-fedora-configs-niri
-Version:        0.1.10
+Version:        0.1.11
 Release:        1%{?dist}
 Summary:        Configurations for Fedora for Nabu with niri Composer
 License:        MIT
@@ -25,7 +25,6 @@ This package contains configurations specific for Fedora for Nabu with niri comp
 %install
 cp -a etc %{buildroot}/
 cp -a usr %{buildroot}/
-cp -a var %{buildroot}/
 
 %files
 # General Configs
@@ -33,41 +32,15 @@ cp -a var %{buildroot}/
 %attr(644, root, root) %config(noreplace) %{_sysconfdir}/environment.d/99-im.conf
 %attr(644, root, root) %{_prefix}/lib/systemd/system/fcitx5-autostart.service
 %attr(644, root, root) %{_presetdir}/91-fcitx5-autostart.preset
-# sddm Configs
-%attr(644, root, root) %config(noreplace) %{_sysconfdir}/sddm.conf.d/general.conf
-%attr(644, root, root) %config(noreplace) %{_sysconfdir}/sddm.conf.d/wayland.conf
-%attr(644, root, root) %config(noreplace) %{_sysconfdir}/sddm.conf.d/theme.conf
-# sddm Session Config Presets
-%attr(644, root, root) %config(noreplace) %{_sharedstatedir}/sddm/.config/niri/config.kdl
-# User Config Presets
-## Desktop Presets
-%attr(644, root, root) %{_sysconfdir}/skel/.local/share/applications/code-url-handler.desktop
-%attr(644, root, root) %{_sysconfdir}/skel/.local/share/applications/code.desktop
-## fuzzel
-%attr(644, root, root) %{_sysconfdir}/skel/.config/fuzzel/fuzzel.ini
-## kitty
-%attr(644, root, root) %{_sysconfdir}/skel/.config/kitty/kitty.conf
-%attr(644, root, root) %{_sysconfdir}/skel/.config/kitty/current-theme.conf
-## niri
-%attr(644, root, root) %{_sysconfdir}/skel/.config/niri/config.kdl
-## swaylock
-%attr(644, root, root) %{_sysconfdir}/skel/.config/swaylock/config
-## waybar
-%attr(644, root, root) %{_sysconfdir}/skel/.config/waybar/config.jsonc
-%attr(644, root, root) %{_sysconfdir}/skel/.config/waybar/style.css
-## waypaper
-%attr(644, root, root) %{_sysconfdir}/skel/.config/waypaper/config.ini
-%attr(644, root, root) %{_sysconfdir}/skel/.config/waypaper/style.css
-# Scripts
-%attr(755, root, root) %{_bindir}/wvkbd-toggle.sh
-%attr(755, root, root) %{_bindir}/fuzzel-pw-menu.sh
-%attr(755, root, root) %{_bindir}/niri-rotate-display.sh
+%attr(644, root, root) %{_presetdir}/92-greetd.preset
+
 # Wallpapers Dir
 %defattr(644, root, root, 755)
 %{_sysconfdir}/skel/Pictures/Wallpapers
 
 %post
-## bash
+# ----------------------------------------------------------------------
+# appending to bashrc 
 if [ -f /etc/skel/.bashrc ]; then
     echo "Appending custom configurations to /etc/skel/.bashrc"
     cat << 'EOF' >> /etc/skel/.bashrc
@@ -78,6 +51,28 @@ fastfetch
 # ---- End of nabu-fedora-configs-niri section ----
 EOF
 fi
+
+# ----------------------------------------------------------------------
+# greetd config
+# ----------------------------------------------------------------------
+CONFIG_FILE="/etc/greetd/config.toml"
+
+if [ ! -d "/etc/greetd" ]; then
+    echo "creating /etc/greetd ..."
+    mkdir -p /etc/greetd
+fi
+
+cat > "$CONFIG_FILE" <<EOF
+[terminal]
+vt = 1
+
+[default_session]
+user = "greeter"
+command = "dms-greeter --command niri"
+EOF
+
+if [ $? -eq 0 ]; then
+    echo "greetd config updated."
 
 # ----------------------------------------------------------------------
 # pipewire user services
@@ -118,6 +113,9 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %changelog
+* Fri Dec 26 2025 jhuang6451 <xplayerhtz123@outlook.com> - 0.1.11-1
+- Pre-installing DankMaterialShell. 
+
 * Thu Oct 16 2025 jhuang6451 <xplayerhtz123@outlook.com> - 0.1.10-1
 - Add postinstall script for pipwire user services.
 
