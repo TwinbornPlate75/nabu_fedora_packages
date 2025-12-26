@@ -1,6 +1,6 @@
 %undefine        _debugsource_packages
 %global KERNEL_VER 6.17.0
-%global KERNEL_CUSTOM_VER 1
+%global KERNEL_CUSTOM_VER 2
 %global DEVICE_NAME nabu
 %global PLATFORM_NAME sm8150
 
