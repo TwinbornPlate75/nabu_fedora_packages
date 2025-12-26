@@ -3,7 +3,7 @@ name: Auto Tag for Copr
 on:
   push:
     branches:
-      - main
+      - test
     paths:
       - '**/*.spec'
 
