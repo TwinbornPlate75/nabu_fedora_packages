@@ -8,7 +8,7 @@
 %global KERNEL_FULL_VER %{KERNEL_VER}%{KERNEL_EXTRA_VER}
 
 Version:         %{KERNEL_VER}.%{PLATFORM_NAME}.%{KERNEL_CUSTOM_VER}
-Release:         3.%{DEVICE_NAME}%{?dist}
+Release:         4.%{DEVICE_NAME}%{?dist}
 ExclusiveArch:   aarch64
 Name:            kernel-%{PLATFORM_NAME}
 Summary:         Mainline Linux kernel for %{PLATFORM_NAME} devices
@@ -82,7 +82,7 @@ KERNEL_FULL_VER="%{KERNEL_FULL_VER}"
 DEVICE_NAME="%{DEVICE_NAME}"
 
 # --- 为新内核生成模块依赖 ---
-depmod -a
+depmod -a "${KERNEL_FULL_VER}"
 
 
 echo "--- Generating UKI for ${KERNEL_FULL_VER} using dracut + ukify ---"
