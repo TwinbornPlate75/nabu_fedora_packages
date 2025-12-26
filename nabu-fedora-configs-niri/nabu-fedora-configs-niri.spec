@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 
 Name:           nabu-fedora-configs-niri
-Version:        0.1.13
+Version:        0.1.14
 Release:        1%{?dist}
 Summary:        Configurations for Fedora for Nabu with niri Composer
 License:        MIT
