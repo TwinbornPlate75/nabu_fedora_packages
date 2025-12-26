@@ -7,7 +7,7 @@ Release:        %{pkg_release}%{?dist}
 Summary:        Configurations for Fedora for Nabu with niri Composer
 License:        MIT
 URL:            https://github.com/jhuang6451/nabu_fedora_packages
-Source0:        %{url}/archive/refs/tags/%{name}-%{version}-%{release}.tar.gz
+Source0:        %{url}/archive/refs/tags/%{name}-%{version}-%{pkg_release}.tar.gz
 BuildArch:      noarch
 BuildRequires:  systemd-rpm-macros
 
