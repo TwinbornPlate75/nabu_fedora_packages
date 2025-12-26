@@ -1,0 +1,90 @@
+name: Auto Tag for Copr
+
+on:
+  push:
+    branches:
+      - test
+    paths:
+      - '**/*.spec'
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install RPM tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm
+
+      - name: Detect changes and push tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 获取本次 push 修改过的文件列表 (对比上一次提交)
+          # 注意：如果是首次提交或强制推送，可能需要调整 diff 逻辑，这里适用于常规线性开发
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          
+          echo "Detected changed files:"
+          echo "$CHANGED_FILES"
+
+          # 遍历修改的文件
+          for file in $CHANGED_FILES; do
+            # 检查文件是否为 .spec 结尾
+            if [[ "$file" == *.spec ]]; then
+              
+              # 检查文件路径是否符合你的目录结构要求
+              # 规则1: /包名/包名.spec (例如: mypkg/mypkg.spec)
+              # 规则2: /utils/包名/包名.spec (例如: utils/mypkg/mypkg.spec)
+              if [[ "$file" =~ ^([^/]+)/\1\.spec$ ]] || [[ "$file" =~ ^utils/([^/]+)/\1\.spec$ ]]; then
+                echo "Processing spec file: $file"
+                
+                # 使用 rpmspec 解析 Name, Version, Release
+                # 注意：rpmspec 会尝试展开宏，如果你的 spec 依赖复杂的外部宏，可能需要额外配置
+                # 这里我们提取 Name, Version, Release
+                
+                # 1. 提取 Name
+                PKG_NAME=$(rpmspec -q --queryformat "%{NAME}" "$file" 2>/dev/null || grep -i "^Name:" "$file" | awk '{print $2}')
+                
+                # 2. 提取 Version
+                PKG_VERSION=$(rpmspec -q --queryformat "%{VERSION}" "$file" 2>/dev/null || grep -i "^Version:" "$file" | awk '{print $2}')
+                
+                # 3. 提取 Release (通常我们会去掉 %{?dist} 后缀，因为 git tag 不应该包含 dist)
+                PKG_RELEASE=$(rpmspec -q --queryformat "%{RELEASE}" "$file" 2>/dev/null || grep -i "^Release:" "$file" | awk '{print $2}')
+                # 简单清洗 Release，去掉可能的 .fc38, %{?dist} 等后缀，只保留前面的数字部分 (可选)
+                # 如果你想完全保留 spec 中的 release，可以注释掉下面这行
+                PKG_RELEASE=$(echo "$PKG_RELEASE" | sed 's/%{?dist}//g' | sed 's/\.fc[0-9]*//g')
+
+                if [ -z "$PKG_NAME" ] || [ -z "$PKG_VERSION" ]; then
+                  echo "Error: Could not parse Name or Version from $file"
+                  continue
+                fi
+
+                # 构造符合 Copr 要求的 Tag 格式: PKGNAME-VERSION-RELEASE
+                TAG_NAME="${PKG_NAME}-${PKG_VERSION}-${PKG_RELEASE}"
+                
+                # 如果不想包含 Release，可以使用: TAG_NAME="${PKG_NAME}-${PKG_VERSION}"
+
+                echo "Target Tag: $TAG_NAME"
+
+                # 检查 Tag 是否已存在
+                if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+                  echo "Tag $TAG_NAME already exists. Skipping."
+                else
+                  echo "Creating tag $TAG_NAME..."
+                  git tag "$TAG_NAME"
+                  git push origin "$TAG_NAME"
+                  echo "Tag $TAG_NAME pushed successfully."
+                fi
+              else
+                echo "File $file is a spec file but does not match the required directory structure. Skipping."
+              fi
+            fi
+          done

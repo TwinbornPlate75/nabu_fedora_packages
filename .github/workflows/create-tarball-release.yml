@@ -1,13 +1,14 @@
 name: Create Tarball for Updated Packages (Release)
 
 on:
-  push:
-    branches:
-      - "release"
-      - "test"
-    paths:
-      - '**/*.spec'
-      - '.release-tarballs'
+  # push:
+  #   branches:
+  #     - "release"
+  #     - "test"
+  #   paths:
+  #     - '**/*.spec'
+  #     - '.release-tarballs'
+  workflow_dispatch: 
 
 jobs:
   detect-changes:
