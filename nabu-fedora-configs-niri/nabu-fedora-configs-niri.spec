@@ -1,8 +1,9 @@
 %global debug_package %{nil}
+%global pkg_release 1
 
 Name:           nabu-fedora-configs-niri
 Version:        0.1.16
-Release:        1%{?dist}
+Release:        %{pkg_release}%{?dist}
 Summary:        Configurations for Fedora for Nabu with niri Composer
 License:        MIT
 URL:            https://github.com/jhuang6451/nabu_fedora_packages
@@ -17,7 +18,7 @@ Requires:       wireplumber
 This package contains configurations specific for Fedora for Nabu with niri composer
 
 %prep
-%autosetup
+%autosetup -n nabu_fedora_packages-%{name}-%{version}-%{pkg_release}
 
 %build
 # Nothing to build
