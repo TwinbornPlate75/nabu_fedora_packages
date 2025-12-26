@@ -15,7 +15,7 @@ Name:            kernel-%{PLATFORM_NAME}
 Summary:         Mainline Linux kernel for %{PLATFORM_NAME} devices
 License:         GPLv2
 URL:             https://github.com/jhuang6451/Linux
-Source0:         %{url}/archive/v%{KERNEL_FULL_VER}.tar.gz
+Source0:         %{url}/archive/v%{KERNEL_VER}-%{PLATFORM_NAME}-%{KERNEL_CUSTOM_VER}.tar.gz
 Source1:         extra-sm8150.config
 #Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
 
