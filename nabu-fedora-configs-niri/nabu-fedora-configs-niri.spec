@@ -17,12 +17,14 @@ Requires:       wireplumber
 This package contains configurations specific for Fedora for Nabu with niri composer
 
 %prep
-%autosetup
+%autosetup -n nabu_fedora_packages-%{name}-%{version}-%{release}
 
 %build
 # Nothing to build
 
 %install
+cd nabu-fedora-configs-niri
+
 cp -a etc %{buildroot}/
 cp -a usr %{buildroot}/
 
