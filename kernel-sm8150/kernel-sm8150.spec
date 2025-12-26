@@ -9,7 +9,7 @@
 %global KERNEL_FULL_VER %{KERNEL_VER}%{KERNEL_EXTRA_VER}
 
 Version:         %{KERNEL_VER}.%{PLATFORM_NAME}.%{KERNEL_CUSTOM_VER}
-Release:         4.%{DEVICE_NAME}%{?dist}
+Release:         %{RELEASE_VER}.%{DEVICE_NAME}%{?dist}
 ExclusiveArch:   aarch64
 Name:            kernel-%{PLATFORM_NAME}
 Summary:         Mainline Linux kernel for %{PLATFORM_NAME} devices
