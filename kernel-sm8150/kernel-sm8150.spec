@@ -8,6 +8,8 @@
 %global KERNEL_EXTRA_VER -%{PLATFORM_NAME}-%{KERNEL_CUSTOM_VER}-%{RELEASE_VER}
 %global KERNEL_FULL_VER %{KERNEL_VER}%{KERNEL_EXTRA_VER}
 
+%global TAG_NAME %{KERNEL_VER}-%{PLATFORM_NAME}-%{KERNEL_CUSTOM_VER}
+
 Version:         %{KERNEL_VER}.%{PLATFORM_NAME}.%{KERNEL_CUSTOM_VER}
 Release:         %{RELEASE_VER}.%{DEVICE_NAME}%{?dist}
 ExclusiveArch:   aarch64
@@ -15,7 +17,7 @@ Name:            kernel-%{PLATFORM_NAME}
 Summary:         Mainline Linux kernel for %{PLATFORM_NAME} devices
 License:         GPLv2
 URL:             https://github.com/jhuang6451/Linux
-Source0:         %{url}/archive/v%{KERNEL_VER}-%{PLATFORM_NAME}-%{KERNEL_CUSTOM_VER}.tar.gz
+Source0:         %{url}/archive/v%{TAG_NAME}.tar.gz
 Source1:         extra-sm8150.config
 #Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
 
@@ -30,7 +32,7 @@ Provides:        kernel-modules-core  = %{version}-%{release}
 Mainline kernel for %{PLATFORM_NAME}, packaged for standard Fedora systems with UEFI boot support
 
 %prep
-%autosetup -p1 -n Linux-%{KERNEL_FULL_VER}
+%autosetup -p1 -n Linux-%{TAG_NAME}
 
 # 准备默认配置
 make defconfig %{PLATFORM_NAME}.config
