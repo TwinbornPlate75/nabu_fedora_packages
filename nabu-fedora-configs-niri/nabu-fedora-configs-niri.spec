@@ -2,7 +2,7 @@
 %global pkg_release 1
 
 Name:           nabu-fedora-configs-niri
-Version:        0.1.16
+Version:        0.1.17
 Release:        %{pkg_release}%{?dist}
 Summary:        Configurations for Fedora for Nabu with niri Composer
 License:        MIT
@@ -76,6 +76,7 @@ EOF
 
 if [ $? -eq 0 ]; then
     echo "greetd config updated."
+fi
 
 # ----------------------------------------------------------------------
 # pipewire user services
