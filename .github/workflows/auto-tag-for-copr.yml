@@ -3,6 +3,7 @@ name: Auto Tag for Copr
 on:
   push:
     branches:
+      - release
       - test
     paths:
       - '**/*.spec'
@@ -28,9 +29,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 获取本次 push 修改过的文件列表
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
-          
+          # 获取分支信息和后缀逻辑
+          BRANCH_NAME="${{ github.ref_name }}"
+          SUFFIX=""
+          if [ "$BRANCH_NAME" == "test" ]; then
+            SUFFIX="-test"
+          fi
+          echo "Current branch: $BRANCH_NAME, Suffix: $SUFFIX"
+
+          # 检测变更的文件范围
+          if [ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]; then
+            # 如果是新分支，对比 HEAD^
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          else
+            # 对比本次 push 的 commit 范围
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+          fi
+
           echo "Detected changed files:"
           echo "$CHANGED_FILES"
 
@@ -53,7 +68,7 @@ jobs:
             elif [[ "$DIRNAME" == "utils/$NAME_NO_EXT" ]]; then
               IS_VALID=true
             fi
-            
+
             if [ "$IS_VALID" = false ]; then
               echo "Skipping $file: does not match 'PackageName/PackageName.spec' or 'utils/PackageName/PackageName.spec' pattern."
               continue
@@ -61,12 +76,12 @@ jobs:
             # ---------------------------
 
             echo "Processing spec file: $file"
-            
+
             # 解析 Name, Version, Release
             PKG_NAME=$(rpmspec -q --queryformat "%{NAME}" "$file" 2>/dev/null || grep -i "^Name:" "$file" | awk '{print $2}')
             PKG_VERSION=$(rpmspec -q --queryformat "%{VERSION}" "$file" 2>/dev/null || grep -i "^Version:" "$file" | awk '{print $2}')
             PKG_RELEASE=$(rpmspec -q --queryformat "%{RELEASE}" "$file" 2>/dev/null || grep -i "^Release:" "$file" | awk '{print $2}')
-            
+
             # 清理 Release 字段 (去掉 %{?dist} 和 .fcXX)
             PKG_RELEASE=$(echo "$PKG_RELEASE" | sed 's/%{?dist}//g' | sed 's/\.fc[0-9]*//g')
 
@@ -75,8 +90,9 @@ jobs:
               continue
             fi
 
-            # 构造 Tag: PKGNAME-VERSION-RELEASE
-            TAG_NAME="${PKG_NAME}-${PKG_VERSION}-${PKG_RELEASE}"
+            # 构造 Tag: PKGNAME[-test]-VERSION-RELEASE
+            # 注意：此处将 SUFFIX 加在 PKG_NAME 后面，以匹配 Copr 中的包名
+            TAG_NAME="${PKG_NAME}${SUFFIX}-${PKG_VERSION}-${PKG_RELEASE}"
 
             echo "Target Tag: $TAG_NAME"
 
