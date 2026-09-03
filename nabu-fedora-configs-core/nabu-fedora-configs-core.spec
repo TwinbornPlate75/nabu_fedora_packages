@@ -46,7 +46,6 @@ tar -xf fedora-mac-style.tar.xz -C %{buildroot}%{_datadir}/plymouth/themes/fedor
 %attr(644, root, root) %config(noreplace) %{_sysconfdir}/systemd/zram-generator.conf
 %attr(644, root, root) %config(noreplace) %{_sysconfdir}/NetworkManager/conf.d/10-iwd.conf
 %attr(644, root, root) %{_prefix}/lib/systemd/system/ath10k-shutdown.service
-%attr(644, root, root) %{_prefix}/lib/udev/rules.d/99-force-rtc1.rules
 %attr(644, root, root) %{_presetdir}/80-nabu-core.preset
 %attr(644, root, root) %{_presetdir}/81-qbootctl.preset
 %attr(644, root, root) %{_presetdir}/82-disable-wpa_supplicant.preset
