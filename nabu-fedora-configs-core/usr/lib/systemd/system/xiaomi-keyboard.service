@@ -1,0 +1,11 @@
+[Unit]
+Description=Enable Xiaomi keyboard
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'echo 1 > /sys/devices/platform/xiaomi_keyboard/xiaomi_keyboard_enabled'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
