@@ -1,12 +1,15 @@
 %global debug_package %{nil}
 
+# 直接从维护仓库 (release 分支) clone 源码, 与 fork 文件树保持同步
+%global PKG_REPO https://github.com/TwinbornPlate75/nabu_fedora_packages.git
+%global PKG_BRANCH release
+
 Name:           nabu-fedora-configs-core
 Version:        0.5.10
 Release:        1%{?dist}
 Summary:        Core configuration files for Fedora on Xiaomi Pad 5 (nabu)
 License:        MIT
-URL:            https://github.com/jhuang6451/nabu_fedora
-Source0:        https://github.com/jhuang6451/nabu_fedora_packages/releases/download/test-%{name}-%{version}/%{name}-%{version}.tar.gz
+URL:            https://github.com/TwinbornPlate75/nabu_fedora
 BuildArch:      noarch
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  tar
@@ -25,12 +28,14 @@ Requires:       iwd
 This package contains the essential configuration files for running Fedora on the Xiaomi Pad 5 (nabu)
 
 %prep
-%autosetup
+rm -rf nabu-packages-src
+git clone --depth 1 --branch %{PKG_BRANCH} %{PKG_REPO} nabu-packages-src
 
 %build
 # Nothing to build
 
 %install
+cd nabu-packages-src/%{name}
 cp -a etc %{buildroot}/
 cp -a usr %{buildroot}/
 chmod +x %{buildroot}%{_bindir}/nabu-regenerate-uki.sh

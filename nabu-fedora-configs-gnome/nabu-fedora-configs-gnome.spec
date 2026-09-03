@@ -1,12 +1,15 @@
 %global debug_package %{nil}
 
+# 直接从维护仓库 (release 分支) clone 源码, 与 fork 文件树保持同步
+%global PKG_REPO https://github.com/TwinbornPlate75/nabu_fedora_packages.git
+%global PKG_BRANCH release
+
 Name:           nabu-fedora-configs-gnome
 Version:        0.4.7
 Release:        1%{?dist}
 Summary:        Configurations for Fedora for Nabu with Gnome DE
 License:        MIT
-URL:            https://github.com/jhuang6451/nabu_fedora
-Source0:        https://github.com/jhuang6451/nabu_fedora_packages/releases/download/%{name}-%{version}/%{name}-%{version}.tar.gz
+URL:            https://github.com/TwinbornPlate75/nabu_fedora
 BuildArch:      noarch
 BuildRequires:  systemd-rpm-macros
 
@@ -14,12 +17,14 @@ BuildRequires:  systemd-rpm-macros
 This package contains configurations specific for Fedora for Nabu builds with Gnome DE
 
 %prep
-%autosetup
+rm -rf nabu-packages-src
+git clone --depth 1 --branch %{PKG_BRANCH} %{PKG_REPO} nabu-packages-src
 
 %build
 # Nothing to build
 
 %install
+cd nabu-packages-src/%{name}
 cp -a var %{buildroot}/
 cp -a etc %{buildroot}/
 cp -a usr %{buildroot}/
