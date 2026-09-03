@@ -5,7 +5,7 @@
 %global PKG_BRANCH release
 
 Name:           nabu-fedora-configs-core
-Version:        0.5.10
+Version:        0.5.11
 Release:        1%{?dist}
 Summary:        Core configuration files for Fedora on Xiaomi Pad 5 (nabu)
 License:        MIT
@@ -51,6 +51,8 @@ tar -xf fedora-mac-style.tar.xz -C %{buildroot}%{_datadir}/plymouth/themes/fedor
 %attr(644, root, root) %config(noreplace) %{_sysconfdir}/systemd/zram-generator.conf
 %attr(644, root, root) %config(noreplace) %{_sysconfdir}/NetworkManager/conf.d/10-iwd.conf
 %attr(644, root, root) %{_prefix}/lib/systemd/system/ath10k-shutdown.service
+%attr(644, root, root) %{_prefix}/lib/systemd/system/xiaomi-keyboard.service
+%{_prefix}/lib/modules-load.d/nabu-modules.conf
 %attr(644, root, root) %{_presetdir}/80-nabu-core.preset
 %attr(644, root, root) %{_presetdir}/81-qbootctl.preset
 %attr(644, root, root) %{_presetdir}/82-disable-wpa_supplicant.preset
@@ -75,13 +77,22 @@ echo "--- UKI regeneration process finished. ---"
 
 %systemd_post ath10k-shutdown.service
 
+# xiaomi-keyboard.service 默认不启用, 由用户自行 systemctl enable;
+# 这里只需刷新 unit 状态。
+systemctl daemon-reload || :
+
 %preun
 %systemd_preun ath10k-shutdown.service
 
 %postun
 %systemd_postun_with_restart ath10k-shutdown.service
+systemctl daemon-reload || :
 
 %changelog
+* Thu Sep 3 2026 TwinbornPlate75 <3342733415@qq.com> - 0.5.11-1
+- Add xiaomi-keyboard.service (not enabled by default, user opt-in).
+- Load ntsync and idtp9418 modules at boot via modules-load.d.
+
 * Wed Oct 22 2025 jhuang6451 <xplayerhtz123@outlook.com> - 0.5.10-1
 - Change WLAN backend to iwd.
 
