@@ -1,9 +1,13 @@
 %undefine        _debugsource_packages
-%global KERNEL_VER 6.17.0
+
+# 内核版本, 可在构建时用 --define "kernel_ver X.Y.Z" 覆盖 (需与 clone 分支匹配)
+%global KERNEL_VER %{?kernel_ver}%{!?kernel_ver:6.18.45}
 %global KERNEL_CUSTOM_VER 1
-%global RELEASE_VER 4
+%global RELEASE_VER 1
 %global DEVICE_NAME nabu
 %global PLATFORM_NAME sm8150
+%global KERNEL_SRC_REPO https://github.com/TwinbornPlate75/linux-nabu.git
+%global KERNEL_SRC_BRANCH sm8150/6.18
 
 %global KERNEL_EXTRA_VER -%{PLATFORM_NAME}-%{KERNEL_CUSTOM_VER}-%{RELEASE_VER}
 %global KERNEL_FULL_VER %{KERNEL_VER}%{KERNEL_EXTRA_VER}
@@ -16,10 +20,7 @@ ExclusiveArch:   aarch64
 Name:            kernel-%{PLATFORM_NAME}
 Summary:         Mainline Linux kernel for %{PLATFORM_NAME} devices
 License:         GPLv2
-URL:             https://github.com/jhuang6451/Linux
-Source0:         %{url}/archive/v%{TAG_NAME}.tar.gz
-Source1:         extra-sm8150.config
-#Patch0:          0001-dts-nabu-add-panel-rotation-property.patch
+URL:             %{KERNEL_SRC_REPO}
 
 BuildRequires:   bc bison dwarves diffutils elfutils-devel findutils gcc gcc-c++ git-core hmaccalc hostname make openssl-devel perl-interpreter rsync tar which flex bzip2 xz zstd python3 python3-devel python3-pyyaml rust rust-src bindgen rustfmt clippy opencsd-devel net-tools dracut
 
@@ -29,19 +30,24 @@ Provides:        kernel-modules       = %{version}-%{release}
 Provides:        kernel-modules-core  = %{version}-%{release}
 
 %description
-Mainline kernel for %{PLATFORM_NAME}, packaged for standard Fedora systems with UEFI boot support
+Mainline Linux kernel for %{PLATFORM_NAME}, packaged for standard Fedora systems with UEFI boot support
 
 %prep
-%autosetup -p1 -n Linux-%{TAG_NAME}
-
-# 准备默认配置
-make defconfig %{PLATFORM_NAME}.config
+# 直接 clone 内核源码仓库 (源码树自带 arch/arm64/configs/sm8150.config fragment)
+rm -rf Linux-%{TAG_NAME}
+git clone --depth 1 --branch %{KERNEL_SRC_BRANCH} %{KERNEL_SRC_REPO} Linux-%{TAG_NAME}
+# 移除 .git, 避免 setlocalversion 在 kernelrelease 里追加 git hash
+rm -rf Linux-%{TAG_NAME}/.git
 
 %build
+cd Linux-%{TAG_NAME}
+
+# 准备默认配置: arm64 defconfig 并合并 sm8150 fragment
+make defconfig %{PLATFORM_NAME}.config
+# 禁用 CONFIG_LOCALVERSION_AUTO，防止自动追加 git 版本信息
+sed -i 's/CONFIG_LOCALVERSION_AUTO=y/# CONFIG_LOCALVERSION_AUTO is not set/' .config
 # 移除既有的 CONFIG_LOCALVERSION，通过 make 命令的参数来控制它
 sed -i '/^CONFIG_LOCALVERSION=/d' .config
-# 追加额外的配置
-cat %{SOURCE1} >> .config
 # 确保没有 localversion 文件影响版本号
 rm -f localversion*
 
@@ -49,6 +55,8 @@ make olddefconfig
 make EXTRAVERSION="%{KERNEL_EXTRA_VER}" LOCALVERSION= -j%{?_smp_build_ncpus} Image modules dtbs
 
 %install
+
+cd Linux-%{TAG_NAME}
 
 # 1. 安装内核模块
 # INSTALL_MOD_PATH 指向 %{buildroot}/usr，这会将模块安装到 %{buildroot}/usr/lib/modules/%{KERNEL_FULL_VER}/
